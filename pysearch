@@ -52,7 +52,7 @@ class Query:
         # parse package name, version and description
         package_names = self.soup.find_all(class_ = "package-snippet__name")
         package_versions = self.soup.find_all(class_ = "package-snippet__version")
-        package_released = self.soup.find_all(class_ = "package-snippet__released")
+        package_released = self.soup.find_all(class_ = "package-snippet__created")
         package_descriptions = self.soup.find_all(class_ = "package-snippet__description")
 
         # build the elements container
