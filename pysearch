@@ -148,7 +148,7 @@ class Query:
         cut description
         '''
         if len(description) > length:
-            description = description[:length] + "..."
+            description = description[:length-3] + "..."
         return description
 
     @staticmethod
@@ -160,7 +160,7 @@ class Query:
 
         terminal_size = os.get_terminal_size()
         cols, lines = terminal_size[0], terminal_size[1]
-        name_ver = name+" "+version
+        name_ver = Query._cut_description(name, 23) + " " + version[:9]
         min_length = 55
         max_length = cols
         # shorten description if too long
