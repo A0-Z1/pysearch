@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
 import sys
+import os
 import requests
 from bs4 import BeautifulSoup
+
 
 class Query:
     '''
@@ -14,15 +16,15 @@ class Query:
 
     def __init__(self, query):
         '''
-        query must be a 
+        query must be a
         tokenized list of queries
         '''
-        
+
         # save the query
         self.pypi_query = self._querify(query)
         # retrieve the website
         try:
-            self.website  = requests.get(self.pypi_query)
+            self.website = requests.get(self.pypi_query)
             # parse the webpage
             self.soup = BeautifulSoup(self.website.content, 'html.parser')
         except requests.ConnectTimeout:
@@ -50,15 +52,18 @@ class Query:
         '''
 
         # parse package name, version and description
-        package_names = self.soup.find_all(class_ = "package-snippet__name")
-        package_versions = self.soup.find_all(class_ = "package-snippet__version")
-        package_released = self.soup.find_all(class_ = "package-snippet__created")
-        package_descriptions = self.soup.find_all(class_ = "package-snippet__description")
+        package_names = self.soup.find_all(class_="package-snippet__name")
+        package_versions = self.soup.find_all(class_="package-snippet__version")
+        package_released = self.soup.find_all(class_="package-snippet__created")
+        package_descriptions = self.soup.find_all(class_="package-snippet__description")
 
         # build the elements container
         # if there are results
         if package_names:
-            self.container = self._gather_elements(package_names, package_versions, package_released, package_descriptions)
+            self.container = self._gather_elements(package_names,
+                                                   package_versions,
+                                                   package_released,
+                                                   package_descriptions)
         else:
             self.container = []
 
@@ -92,7 +97,10 @@ class Query:
             print("You need to parse the webpage first!")
 
     @staticmethod
-    def _gather_elements(package_names, package_versions, package_released, package_descriptions):
+    def _gather_elements(package_names,
+                         package_versions,
+                         package_released,
+                         package_descriptions):
         '''
         Helper method for parser
         Creates a list
@@ -110,12 +118,12 @@ class Query:
             description = package_descriptions[package].text
             # shorten description if too long
             description = Query._cut_description(description, 70)
-            
-            package = {"name":name,
-                    "version":version,
-                    "released": released,
-                    "description":description,
-                    }
+
+            package = {"name": name,
+                       "version": version,
+                       "released": released,
+                       "description": description,
+                       }
 
             collection.append(package)
 
@@ -146,8 +154,12 @@ class Query:
         in nice format
         '''
 
+        terminal_size = os.get_terminal_size()
+        cols, lines = terminal_size[0], terminal_size[1]
         name_ver = name+" "+version
-        print(f"{name_ver:50}\t({released})\t{description}")
+        min_length = 51
+        max_length = cols-1 if cols > min_length else min_length
+        print(f"{name_ver:45}{released:15}{description}"[:max_length])
 
 
 if __name__ == "__main__":
