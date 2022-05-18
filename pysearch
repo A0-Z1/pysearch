@@ -14,13 +14,14 @@ class Query:
     # the base URL of pypi
     URL = "https://pypi.org"
 
-    def __init__(self, query):
+    def __init__(self, query, page: int = 1):
         '''
         query must be a
         tokenized list of queries
         '''
 
         # save the query
+        self.page = page
         self.pypi_query = self._querify(query)
         # retrieve the website
         try:
@@ -42,6 +43,9 @@ class Query:
         '''
         joined_query = '%20'.join(query)
         pypi_query = self.URL + "/search/?q=" + joined_query
+
+        if self.page > 1:
+            pypi_query += f"&page={self.page}"
 
         return pypi_query
 
@@ -78,6 +82,8 @@ class Query:
         try:
             # if there are results
             if self.container:
+                print("")
+                print("Page no.", self.page)
                 print("")
                 for count, package in enumerate(self.container):
                     # break if reached count
@@ -172,11 +178,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("query", help="search term to submit to PyPi search engine", nargs="*")
     parser.add_argument("-n", help="show the first n packages", type=int)
+    parser.add_argument("-p", help="select which search page result to show", type=int)
     args = parser.parse_args()
     query = args.query
 
     # create class instance
-    results = Query(query)
+    if args.p:
+        results = Query(query, args.p)
+    else:
+        results = Query(query)
     # parse the results
     results.parser()
     # show the packages
