@@ -116,8 +116,6 @@ class Query:
             version = package_versions[package].text
             released = package_released[package].text.strip()
             description = package_descriptions[package].text
-            # shorten description if too long
-            description = Query._cut_description(description, 70)
 
             package = {"name": name,
                        "version": version,
@@ -157,9 +155,15 @@ class Query:
         terminal_size = os.get_terminal_size()
         cols, lines = terminal_size[0], terminal_size[1]
         name_ver = name+" "+version
-        min_length = 51
-        max_length = cols-1 if cols > min_length else min_length
-        print(f"{name_ver:45}{released:15}{description}"[:max_length])
+        min_length = 55
+        max_length = cols
+        # shorten description if too long
+        description = Query._cut_description(description, max_length - min_length)
+        if cols > min_length:
+            result = f"{name_ver:35}{released:15}{description}"[:max_length]
+        else:
+            result = f"{name_ver}"
+        print(result)
 
 
 if __name__ == "__main__":
